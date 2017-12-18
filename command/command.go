@@ -33,12 +33,23 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 		return nil
 	}
 
+	if req.Args[1] == "help" {
+		var buffer bytes.Buffer
+
+		buffer.WriteString("Usage: !lookup <category> <search string>\n")
+		buffer.WriteString("\tcategory: The entity category to look for\n")
+		buffer.WriteString("\tsearch string: The entity to search for (needs to be at least three characters\n")
+
+		rsp.Result = []byte(fmt.Sprintf("```%s```", buffer.String()))
+		return nil
+	}
+
 	client := clientFactory.NewSearchServiceClient()
 
-	category := req.Args[1]
-	fmt.Printf("Category: %s\n", category)
+	//category := req.Args[1]
+	//fmt.Printf("Category: %s\n", category)
 	searchString := strings.Join(req.Args[2:], " ")
-	fmt.Printf("searchString: %s\n", searchString)
+	//fmt.Printf("searchString: %s\n", searchString)
 	sr := esisvc.SearchRequest{SearchString: searchString}
 	response, err := client.Search(ctx, &sr)
 
@@ -48,45 +59,9 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 		fmt.Printf("response: %+v\n", response)
 	}
 
-	//rsp.Result = []byte(response)
+	rsp.Result = []byte(fmt.Sprintf("```%+v```", response))
 	return nil
 }
-
-func help(ctx context.Context, req *proto.ExecRequest) string {
-	var buffer bytes.Buffer
-
-	buffer.WriteString("Usage: !lookup <type> <arguments>\n")
-	buffer.WriteString("\thelp: This text\n")
-
-	return fmt.Sprintf("```%s```", buffer.String())
-}
-
-//func addRole(ctx context.Context, req *proto.ExecRequest) string {
-//	var buffer bytes.Buffer
-//	client := clientFactory.NewEntityAdminClient()
-//	roleName := req.Args[2]
-//	chatServiceGroup := strings.Join(req.Args[2:], " ")
-//
-//	if len(chatServiceGroup) > 0 && chatServiceGroup[0] == '"' {
-//		chatServiceGroup = chatServiceGroup[1:]
-//	}
-//	if len(chatServiceGroup) > 0 && chatServiceGroup[len(chatServiceGroup)-1] == '"' {
-//		chatServiceGroup = chatServiceGroup[:len(chatServiceGroup)-1]
-//	}
-//
-//	output, err := client.RoleUpdate(ctx, &uauthsvc.RoleAdminRequest{
-//		Role:      &uauthsvc.Role{RoleName: roleName, ChatServiceGroup: chatServiceGroup},
-//		Operation: uauthsvc.EntityOperation_ADD_OR_UPDATE,
-//	})
-//
-//	if err != nil {
-//		buffer.WriteString(err.Error())
-//	} else {
-//		buffer.WriteString(output.String())
-//	}
-//
-//	return fmt.Sprintf("```%s```", buffer.String())
-//}
 
 func NewCommand(name string, factory ClientFactory) *Command {
 	clientFactory = factory
