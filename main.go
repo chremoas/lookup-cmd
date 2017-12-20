@@ -12,9 +12,10 @@ import (
 
 var Version = "1.0.0"
 var service micro.Service
+var name = "lookup"
 
 func main() {
-	service = config.NewService(Version, "lookup", initialize)
+	service = config.NewService(Version, "cmd", name, initialize)
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
@@ -23,11 +24,10 @@ func main() {
 
 // This function is a callback from the config.NewService function.  Read those docs
 func initialize(config *config.Configuration) error {
-	authSvcName := config.Bot.AuthSrvNamespace + "." + config.ServiceNames.AuthSrv
-	clientFactory := clientFactory{name: authSvcName, client: service.Client()}
+	clientFactory := clientFactory{name: config.LookupService("srv", "esi"), client: service.Client()}
 
 	proto.RegisterCommandHandler(service.Server(),
-		command.NewCommand(config.Name,
+		command.NewCommand(name,
 			&clientFactory,
 		),
 	)
