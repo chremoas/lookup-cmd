@@ -40,6 +40,6 @@ type clientFactory struct {
 	client client.Client
 }
 
-func (c clientFactory) NewSearchServiceClient() esisvc.SearchServiceClient {
-	return esisvc.NewSearchServiceClient(c.name, c.client)
+func (c clientFactory) NewSearchServiceClient() esisvc.SearchService {
+	return esisvc.NewSearchService(c.name, c.client)
 }

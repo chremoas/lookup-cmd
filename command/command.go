@@ -10,7 +10,7 @@ import (
 )
 
 type ClientFactory interface {
-	NewSearchServiceClient() esisvc.SearchServiceClient
+	NewSearchServiceClient() esisvc.SearchService
 }
 
 var clientFactory ClientFactory
